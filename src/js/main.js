@@ -1,4 +1,4 @@
-var i, brush, BRUSHES = ["sketchy", "shaded", "chrome", "fur", "longfur", "web", "", "simple", "squares", "ribbon", "", "circles", "grid"],
+var i, brush, BRUSHES = ["ribbon"],
 COLOR = [0, 0, 0], BACKGROUND_COLOR = [250, 250, 250],
 SCREEN_WIDTH = window.innerWidth,
 SCREEN_HEIGHT = window.innerHeight,
@@ -24,6 +24,10 @@ function init()
 	canvas.style.cursor = 'crosshair';
 	container.appendChild(canvas);
 	
+	if (!canvas.getContext) return;
+	
+	context = canvas.getContext("2d");
+	
 	flattenCanvas = document.createElement("canvas");
 	flattenCanvas.width = SCREEN_WIDTH;
 	flattenCanvas.height = SCREEN_HEIGHT;
@@ -40,47 +44,16 @@ function init()
 	backgroundColorSelector.container.addEventListener('touchstart', onBackgroundColorSelectorTouchStart, false);
 	container.appendChild(backgroundColorSelector.container);	
 	
-	menu = new Menu();
-	menu.foregroundColor.addEventListener('click', onMenuForegroundColor, false);
-	menu.foregroundColor.addEventListener('touchend', onMenuForegroundColor, false);
-	menu.backgroundColor.addEventListener('click', onMenuBackgroundColor, false);
-	menu.backgroundColor.addEventListener('touchend', onMenuBackgroundColor, false);
-	menu.selector.onchange = onMenuSelectorChange;
-	menu.save.addEventListener('click', onMenuSave, false);
-	menu.save.addEventListener('touchend', onMenuSave, false);
-	menu.clear.addEventListener('click', onMenuClear, false);
-	menu.clear.addEventListener('touchend', onMenuClear, false);
-	menu.about.addEventListener('click', onMenuAbout, false);
-	menu.about.addEventListener('touchend', onMenuAbout, false);
-	menu.container.onmouseover = onMenuMouseOver;
-	menu.container.onmouseout = onMenuMouseOut;
-	container.appendChild(menu.container);
 
-	context = canvas.getContext("2d");
+
 	
-	if (window.location.hash)
-	{
-		hash = window.location.hash.substr(1,window.location.hash.length);
-
-		for (i = 0; i < BRUSHES.length; i++)
-		{
-			if (hash == BRUSHES[i])
-			{
-				brush = eval("new " + BRUSHES[i] + "(context)");
-				menu.selector.selectedIndex = i;
-				break;
-			}
-		}
-	}
 
 	if (!brush)
 	{
-		brush = eval("new " + BRUSHES[0] + "(context)");
+		brush = new ribbon(context);
 	}
 	
-	about = new About();
-	container.appendChild(about.container);
-	
+
 	window.addEventListener('mousemove', onWindowMouseMove, false);
 	window.addEventListener('resize', onWindowResize, false);
 	window.addEventListener('keydown', onDocumentKeyDown, false);
@@ -89,7 +62,7 @@ function init()
 	document.addEventListener('mousedown', onDocumentMouseDown, false);
 	document.addEventListener('mouseout', onCanvasMouseUp, false);
 	
-	canvas.addEventListener('mousedown', onCanvasMouseDown, false);
+	canvas.addEventListener('mousemove', onCanvasMouseMove, false);
 	canvas.addEventListener('touchstart', onCanvasTouchStart, false);
 	
 	onWindowResize(null);
@@ -367,18 +340,16 @@ function onMenuAbout()
 
 // CANVAS
 
-function onCanvasMouseDown( event )
-{
-	cleanPopUps();
-	
-	brush.strokeStart( event.clientX, event.clientY );
 
-	window.addEventListener('mousemove', onCanvasMouseMove, false);
-	window.addEventListener('mouseup', onCanvasMouseUp, false);
-}
 
 function onCanvasMouseMove( event )
 {
+	if (!brush.isStroking) {
+	    brush.strokeStart( event.clientX, event.clientY );
+	    brush.isStroking = true;
+	    return;
+	}
+    
 	brush.stroke( event.clientX, event.clientY );
 }
 
