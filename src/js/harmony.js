@@ -121,14 +121,14 @@
     isForegroundColorSelectorVisible = false, isBackgroundColorSelectorVisible = false, isAboutVisible = false,
     isMenuMouseOver = false, shiftKeyIsDown = false, altKeyIsDown = false;
 
-    init();
+    
 
 
-function init()
+window.harmony = function init()
 {
 	var hash, palette;
 	
-	document.body.style.backgroundColor = 'rgb(' + BACKGROUND_COLOR[0] + ', ' + BACKGROUND_COLOR[1] + ', ' + BACKGROUND_COLOR[2] + ')';
+	//document.body.style.backgroundColor = 'rgb(' + BACKGROUND_COLOR[0] + ', ' + BACKGROUND_COLOR[1] + ', ' + BACKGROUND_COLOR[2] + ')';
 
 	container = document.createElement('div');
 	document.body.appendChild(container);
@@ -163,7 +163,6 @@ function init()
 	window.addEventListener('keydown', onDocumentKeyDown, false);
 	window.addEventListener('keyup', onDocumentKeyUp, false);
 	
-	document.addEventListener('mousedown', onDocumentMouseDown, false);
 	document.addEventListener('mouseout', onCanvasMouseUp, false);
 	
 	canvas.addEventListener('mousemove', onCanvasMouseMove, false);
@@ -208,10 +207,6 @@ function onDocumentKeyDown( event )
 
 		case 18: // Alt
 			altKeyIsDown = true;
-			break;
-		case 82: // r
-			brush.destroy();
-			brush = new window[ BRUSHES[menu.selector.selectedIndex] ](context);
 			break;
 	}
 }
