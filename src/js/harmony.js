@@ -7,250 +7,6 @@
 
 
 
-    function Palette()
-    {
-    	var canvas, context, offsetx, offsety, radius = 90,
-    	count = 1080, oneDivCount = 1 / count, countDiv360 = count / 360, degreesToRadians = Math.PI / 180,
-    	i, color, angle, angle_cos, angle_sin, gradient;
-
-    	canvas = document.createElement("canvas");
-    	canvas.width = 250;
-    	canvas.height = 250;
-
-    	offsetx = canvas.width / 2;
-    	offsety = canvas.height / 2;
-
-    	context = canvas.getContext("2d");
-    	context.lineWidth = 1;
-
-    	function HSB2RGB(hue, sat, val)
-    	{
-    		var red, green, blue,
-    		i, f, p, q, t;
-
-    		if (val == 0)
-    			return [ 0, 0, 0 ];
-
-    		hue *= 0.016666667; // /= 60;
-    		sat *= 0.01; // /= 100;
-    		val *= 0.01; // /= 100;
-
-    		i = Math.floor(hue);
-    		f = hue - i;
-    		p = val * (1 - sat);
-    		q = val * (1 - (sat * f));
-    		t = val * (1 - (sat * (1 - f)));
-
-    		switch(i)
-    		{
-    			case 0: red = val; green = t; blue = p; break;
-    			case 1: red = q; green = val; blue = p; break;
-    			case 2: red = p; green = val; blue = t; break;
-    			case 3: red = p; green = q; blue = val; break;
-    			case 4: red = t; green = p; blue = val; break;
-    			case 5: red = val; green = p; blue = q; break;
-    		}
-
-    		return [red, green, blue];
-    	}
-
-    	// http://www.boostworthy.com/blog/?p=226	
-
-    	for(i = 0; i < count; i++)
-    	{
-    		color = HSB2RGB( Math.floor( (i * oneDivCount) * 360 ), 100, 100);
-    		angle = i / countDiv360 * degreesToRadians;
-    		angle_cos = Math.cos(angle);
-    		angle_sin = Math.sin(angle);
-
-    		context.strokeStyle = "rgb(" + Math.floor( color[0] * 255 ) + "," + Math.floor( color[1] * 255 ) + "," + Math.floor( color[2] * 255 ) + ")";
-    		context.beginPath();
-    		context.moveTo(angle_cos + offsetx, angle_sin + offsety);
-    		context.lineTo(angle_cos * radius + offsetx, angle_sin * radius + offsety);
-    		context.stroke();
-    	}
-
-    	gradient = context.createRadialGradient(offsetx, offsetx, 0, offsetx, offsetx, radius);
-    	gradient.addColorStop(0.1, 'rgba(255, 255, 255, 1)');
-    	gradient.addColorStop(1, 'rgba(255, 255, 255, 0)');
-
-    	context.fillStyle = gradient;
-    	context.fillRect(0, 0, canvas.width, canvas.height);
-
-    	return canvas;
-    }
-
-
-
-
-    function ColorSelector( gradient )
-    {
-    	this.init( gradient );
-    }
-
-    ColorSelector.prototype =
-    {
-    	container: null,
-
-    	hue: null,
-    	hueSelector: null,
-    	hueData: null,
-
-    	luminosity: null,
-    	luminositySelector: null,
-    	luminosityData: null,
-    	luminosityPosition: null,
-
-    	init: function(gradient)
-    	{
-    		var context;
-
-    		this.container = document.createElement("div");
-    		this.container.style.position = 'absolute';
-    		this.container.style.width = '250px';
-    		this.container.style.height = '250px';
-    		this.container.style.visibility = 'hidden';
-    		this.container.style.cursor = 'pointer';
-
-    		this.hue = document.createElement("canvas");
-    		this.hue.width = gradient.width;
-    		this.hue.height = gradient.height;
-
-    		context = this.hue.getContext("2d");
-    		context.drawImage(gradient, 0, 0, this.hue.width, this.hue.height);
-
-    		this.hueData = context.getImageData(0, 0, this.hue.width, this.hue.height).data;	
-
-    		this.container.appendChild(this.hue);
-
-    		this.luminosity = document.createElement("canvas");
-    		this.luminosity.style.position = 'absolute';
-    		this.luminosity.style.left = '0px';
-    		this.luminosity.style.top = '0px';
-    		this.luminosity.width = 250;
-    		this.luminosity.height = 250;
-
-    		this.container.appendChild(this.luminosity);
-
-    		this.updateLuminosity( [255, 255, 255] );
-
-    		this.hueSelector = document.createElement("canvas");
-    		this.hueSelector.style.position = 'absolute';
-    		this.hueSelector.style.left = ((this.hue.width - 15) / 2 ) + 'px';
-    		this.hueSelector.style.top = ((this.hue.height - 15) / 2 ) + 'px';
-    		this.hueSelector.width = 15;
-    		this.hueSelector.height = 15;
-
-    		context = this.hueSelector.getContext("2d");
-    		context.lineWidth = 2;
-    		context.strokeStyle = "rgba(0, 0, 0, 0.5)";
-    		context.beginPath();
-    		context.arc(8, 8, 6, 0, Math.PI * 2, true);
-    		context.stroke();
-    		context.strokeStyle = "rgba(256, 256, 256, 0.8)";
-    		context.beginPath();
-    		context.arc(7, 7, 6, 0, Math.PI * 2, true);
-    		context.stroke();
-
-    		this.container.appendChild( this.hueSelector );
-
-    		this.luminosityPosition = [ (gradient.width - 15), (gradient.height - 15) / 2 ];
-
-    		this.luminositySelector = document.createElement("canvas");
-    		this.luminositySelector.style.position = 'absolute';
-    		this.luminositySelector.style.left = (this.luminosityPosition[0] - 7) + 'px';
-    		this.luminositySelector.style.top = (this.luminosityPosition[1] - 7) + 'px';
-    		this.luminositySelector.width = 15;
-    		this.luminositySelector.height = 15;
-
-    		context = this.luminositySelector.getContext("2d");
-    		context.drawImage(this.hueSelector, 0, 0, this.luminositySelector.width, this.luminositySelector.height);
-
-    		this.container.appendChild(this.luminositySelector);
-    	},
-
-    	show: function()
-    	{
-    		this.container.style.visibility = 'visible';
-    	},
-
-    	hide: function()
-    	{
-    		this.container.style.visibility = 'hidden';		
-    	},
-
-    	updateLuminosity: function( color )
-    	{
-    		var context, angle, angle_cos, angle_sin, shade, offsetx, offsety,
-    		inner_radius = 100, outter_radius = 120, i, count = 1080 / 2, oneDivCount = 1 / count, degreesToRadians = Math.PI / 180,
-    		countDiv360 = (count / 360);
-
-    		offsetx = this.luminosity.width / 2;
-    		offsety = this.luminosity.height / 2;
-
-    		context = this.luminosity.getContext("2d");
-    		context.lineWidth = 3;
-    		context.clearRect(0, 0, this.luminosity.width, this.luminosity.height);
-
-    		for(i = 0; i < count; i++)
-    		{
-    			angle = i / countDiv360 * degreesToRadians;
-    			angle_cos = Math.cos(angle);
-    			angle_sin = Math.sin(angle);
-
-    			shade = 255 - (i * oneDivCount /* / count */) * 255;
-
-    			context.strokeStyle = "rgb(" + Math.floor( color[0] - shade ) + "," + Math.floor( color[1] - shade ) + "," + Math.floor( color[2] - shade ) + ")";
-    			context.beginPath();
-    			context.moveTo(angle_cos * inner_radius + offsetx, angle_sin * inner_radius + offsety);
-    			context.lineTo(angle_cos * outter_radius + offsetx, angle_sin * outter_radius + offsety);
-    			context.stroke();
-    		}
-
-    		this.luminosityData = context.getImageData(0, 0, this.luminosity.width, this.luminosity.height).data;
-    	},
-
-    	update: function(x, y)
-    	{
-    		var dx, dy, d, nx, ny;
-
-    		dx = x - 125;
-    		dy = y - 125;
-    		d = Math.sqrt( dx * dx + dy * dy );
-
-    		if (d < 90)
-    		{
-    			this.hueSelector.style.left = (x - 7) + 'px';
-    			this.hueSelector.style.top = (y - 7) + 'px';
-    			this.updateLuminosity( [ this.hueData[(x + (y * 250)) * 4], this.hueData[(x + (y * 250)) * 4 + 1], this.hueData[(x + (y * 250)) * 4 + 2] ] );
-    		}
-    		else if (d > 100)
-    		{
-    			nx = dx / d;
-    			ny = dy / d;
-
-    			this.luminosityPosition[0] = (nx * 110) + 125;
-    			this.luminosityPosition[1] = (ny * 110) + 125;
-
-    			this.luminositySelector.style.left = ( this.luminosityPosition[0] - 7) + 'px';
-    			this.luminositySelector.style.top = ( this.luminosityPosition[1] - 7) + 'px';			
-    		}
-    	},
-
-    	getColor: function()
-    	{
-    		var x, y;
-
-    		x = Math.floor(this.luminosityPosition[0]);
-    		y = Math.floor(this.luminosityPosition[1]);
-
-    		return [ this.luminosityData[(x + (y * 250)) * 4], this.luminosityData[(x + (y * 250)) * 4 + 1], this.luminosityData[(x + (y * 250)) * 4 + 2] ];
-    	}
-    }
-
-
-
-
     function ribbon( context )
     {
     	this.init( context );
@@ -390,18 +146,7 @@ function init()
 	flattenCanvas = document.createElement("canvas");
 	flattenCanvas.width = SCREEN_WIDTH;
 	flattenCanvas.height = SCREEN_HEIGHT;
-	
-	palette = new Palette();
-	
-	foregroundColorSelector = new ColorSelector(palette);
-	foregroundColorSelector.container.addEventListener('mousedown', onForegroundColorSelectorMouseDown, false);
-	foregroundColorSelector.container.addEventListener('touchstart', onForegroundColorSelectorTouchStart, false);
-	container.appendChild(foregroundColorSelector.container);
 
-	backgroundColorSelector = new ColorSelector(palette);
-	backgroundColorSelector.container.addEventListener('mousedown', onBackgroundColorSelectorMouseDown, false);
-	backgroundColorSelector.container.addEventListener('touchstart', onBackgroundColorSelectorTouchStart, false);
-	container.appendChild(backgroundColorSelector.container);	
 	
 
 
@@ -441,10 +186,7 @@ function onWindowResize()
 	SCREEN_WIDTH = window.innerWidth;
 	SCREEN_HEIGHT = window.innerHeight;
 	
-	menu.container.style.left = ((SCREEN_WIDTH - menu.container.offsetWidth) / 2) + 'px';
 	
-	about.container.style.left = ((SCREEN_WIDTH - about.container.offsetWidth) / 2) + 'px';
-	about.container.style.top = ((SCREEN_HEIGHT - about.container.offsetHeight) / 2) + 'px';
 }
 
 
@@ -463,18 +205,13 @@ function onDocumentKeyDown( event )
 		
 	switch(event.keyCode)
 	{
-		case 16: // Shift
-			shiftKeyIsDown = true;
-			foregroundColorSelector.container.style.left = mouseX - 125 + 'px';
-			foregroundColorSelector.container.style.top = mouseY - 125 + 'px';
-			foregroundColorSelector.container.style.visibility = 'visible';
-			break;
+
 		case 18: // Alt
 			altKeyIsDown = true;
 			break;
 		case 82: // r
 			brush.destroy();
-			brush = eval("new " + BRUSHES[menu.selector.selectedIndex] + "(context)");
+			brush = new window[ BRUSHES[menu.selector.selectedIndex] ](context);
 			break;
 	}
 }
