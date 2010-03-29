@@ -438,10 +438,39 @@ function onCanvasMouseMove( event )
 	if (!brush.isStroking) {
 	    brush.strokeStart( event.clientX, event.clientY );
 	    brush.isStroking = true;
+	    
+	    window.Rcgnzr = new DollarRecognizer();
+
 	    return;
 	}
     
-	brush.stroke( event.clientX, event.clientY );
+    var pts = onCanvasMouseMove.pts, results,
+          x = event.clientX, y = event.clientY;
+    
+    if (onCanvasMouseMove.lastMove && (event.timeStamp - onCanvasMouseMove.lastMove) > 300){
+      //  console.log('omg been a while',+event.timeStamp);
+        
+        
+        if (pts && pts.length){
+            results = Rcgnzr.Recognize(pts);
+           // console.log('results',results);
+            if (results.Name == 'star' && results.Score >= .6) window.starryEgg && starryEgg();
+  
+           // console.log('starting new guy')
+            onCanvasMouseMove.pts = [];
+        } else {
+            
+           // console.log('starting new guy')
+            onCanvasMouseMove.pts = [];
+        }
+    }
+ 
+    onCanvasMouseMove.lastMove = +event.timeStamp;
+
+    
+    pts && (pts[pts.length] = new Point(x, y));
+    
+	brush.stroke( x, y );
 }
 
 function onCanvasMouseUp()
@@ -523,3 +552,23 @@ function cleanPopUps()
 
 
 })(this,this.document);
+
+
+
+
+function starryEgg(){
+    
+    if (document.getElementById('erasure')) return;
+    
+   // console.log('sing a songggggg')
+    var div = document.createElement('div');
+    div.innerHTML = '<object width="384" height="313" id="erasure"><param name="movie" value="http://www.youtube.com/v/eSMeUPFjQHc&hl=en_US&fs=1&autoplay=1"></param><param name="allowFullScreen" value="true"></param><param name="allowscriptaccess" value="always"></param><embed  id="alwayss" src="http://www.youtube.com/v/eSMeUPFjQHc&hl=en_US&fs=1&autoplay=1" type="application/x-shockwave-flash" width="384" height="313" allowscriptaccess="always" allowfullscreen="true"></embed></object>';
+    document.body.appendChild(div);
+    div.style.position = 'fixed';
+    div.style.bottom = '250px';
+    div.style.left = '50%';
+    div.style.marginLeft = '-190px';
+   
+  
+    
+}
