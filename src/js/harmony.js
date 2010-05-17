@@ -439,36 +439,41 @@ function onCanvasMouseMove( event )
 	    brush.strokeStart( event.clientX, event.clientY );
 	    brush.isStroking = true;
 	    
-	    window.Rcgnzr = new DollarRecognizer();
-
+	    if (window.DollarRecognizer){
+	      window.Rcgnzr = new DollarRecognizer();
+      }
+      
 	    return;
 	}
     
     var pts = onCanvasMouseMove.pts, results,
           x = event.clientX, y = event.clientY;
-    
+   
+    // has it been 300ms since the last movement? if so lets consider it a new thing and capture
     if (onCanvasMouseMove.lastMove && (event.timeStamp - onCanvasMouseMove.lastMove) > 300){
-      //  console.log('omg been a while',+event.timeStamp);
-        
+
         
         if (pts && pts.length){
-            results = Rcgnzr.Recognize(pts);
-           // console.log('results',results);
-            if (results.Name == 'star' && results.Score >= .6) window.starryEgg && starryEgg();
-  
-           // console.log('starting new guy')
+          
+            if (window.DollarRecognizer){
+              
+              results = Rcgnzr.Recognize(pts);
+
+              if (results.Name == 'star' && results.Score >= .6) window.starryEgg && starryEgg();
+            }
+
             onCanvasMouseMove.pts = [];
         } else {
-            
-           // console.log('starting new guy')
+
             onCanvasMouseMove.pts = [];
         }
     }
  
-    onCanvasMouseMove.lastMove = +event.timeStamp;
+  onCanvasMouseMove.lastMove = +event.timeStamp;
 
-    
+  if (window.Point){
     pts && (pts[pts.length] = new Point(x, y));
+  }
     
 	brush.stroke( x, y );
 }
@@ -556,6 +561,7 @@ function cleanPopUps()
 
 
 
+// this part is just the easter egg for erasure. you dont need it.
 function starryEgg(){
     
     if (document.getElementById('erasure')) return;
@@ -568,7 +574,5 @@ function starryEgg(){
     div.style.bottom = '250px';
     div.style.left = '50%';
     div.style.marginLeft = '-190px';
-   
-  
     
 }
