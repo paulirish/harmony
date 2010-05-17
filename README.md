@@ -7,6 +7,7 @@ Harmony Background edition!
    Dollar is technically optional, but then no easter egg for you.
 
 2. You'll probably think styles like this will be useful:
+
     #container { position: relative; z-index: 3;}
     canvas { cursor: crosshair; position: fixed; top: 0px; z-index: 2;}
 
