@@ -8,7 +8,7 @@ Harmony Background edition!
 
 2. You'll probably think styles like this will be useful:
 
-    #container { position: relative; z-index: 3;}
+    div#container { position: relative; z-index: 3;} /* change selector */
     canvas { cursor: crosshair; position: fixed; top: 0px; z-index: 2;}
 
 
