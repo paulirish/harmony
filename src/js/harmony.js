@@ -1,5 +1,4 @@
 
-
 (function(window,document,undefined){
 
 
@@ -184,6 +183,20 @@ function onWindowResize()
 {
 	SCREEN_WIDTH = window.innerWidth;
 	SCREEN_HEIGHT = window.innerHeight;
+
+        /* make a copy */
+        savecanvas = document.createElement("canvas");
+	savecanvas.width = canvas.width;
+	savecanvas.height = canvas.height;
+
+	savecanvas.getContext("2d").drawImage(canvas, 0, 0);
+
+        /* change the size */
+	canvas.width = SCREEN_WIDTH;
+	canvas.height = SCREEN_HEIGHT;
+
+        /* draw the copy */
+	context.drawImage(savecanvas, 0, 0);
 	
 	
 }
