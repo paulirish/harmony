@@ -179,28 +179,26 @@ function onWindowMouseMove( event )
 	mouseY = event.clientY;
 }
 
-function onWindowResize()
-{
-	SCREEN_WIDTH = window.innerWidth;
-	SCREEN_HEIGHT = window.innerHeight;
+function onWindowResize() {
+           SCREEN_WIDTH = window.innerWidth;
+           SCREEN_HEIGHT = window.innerHeight;
 
-        /* make a copy */
-        savecanvas = document.createElement("canvas");
-	savecanvas.width = canvas.width;
-	savecanvas.height = canvas.height;
+           /* make a copy */
+           savecanvas = document.createElement("canvas");
+           savecanvas.width = canvas.width;
+           savecanvas.height = canvas.height;
+           savecanvas.getContext("2d").drawImage(canvas, 0, 0);
 
-	savecanvas.getContext("2d").drawImage(canvas, 0, 0);
+           /* change the size */
+           canvas.width = SCREEN_WIDTH;
+           canvas.height = SCREEN_HEIGHT;
 
-        /* change the size */
-	canvas.width = SCREEN_WIDTH;
-	canvas.height = SCREEN_HEIGHT;
+           /* draw the copy */
+           context.drawImage(savecanvas, 0, 0);
 
-        /* draw the copy */
-	context.drawImage(savecanvas, 0, 0);
-	
-	
-}
-
+           /* reset the brush (sad we lose the old random setup) */
+           brush = new ribbon(context);
+       }
 
 // DOCUMENT
 
